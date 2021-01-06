@@ -73,7 +73,9 @@ public class UserInterface extends javax.swing.JFrame {
                     }
                     DefaultTableModel model = generateTableModel(dirs);
                     tblTo.setModel(model);
-               }
+               } else {
+                    enableCopyButton();
+                }
             }
         });
         
@@ -105,9 +107,18 @@ public class UserInterface extends javax.swing.JFrame {
                         
                     }
                     
+                } else {
+                    // single click
+                    
+                    
+                    enableCopyButton();
                 }
             }
         });
+    }
+    
+    void enableCopyButton() {
+        String fromFileName = tblFrom.getValueAt(tblFrom.getSelectedRow(), tblFrom.getSelectedColumn()).toString();
     }
     
     String getPath(ArrayList<String> path) {

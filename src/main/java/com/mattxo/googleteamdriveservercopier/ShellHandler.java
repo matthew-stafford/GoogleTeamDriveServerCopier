@@ -8,6 +8,7 @@ package com.mattxo.googleteamdriveservercopier;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.TreeSet;
 
 /**
@@ -16,27 +17,46 @@ import java.util.TreeSet;
  */
 public class ShellHandler {
     
-    private String pathToRclone = "rclone";
+    private String rclonePath = "rclone";
     
     
     public ShellHandler() {
         
     }
     
-    private ArrayList<String> executeShell(String cmd) {
+    private ArrayList<String> executeShell(String[] cmd) {
         
-        System.out.println("Executing shell command: "+cmd);
+        System.out.println("Executing shell command: "+Arrays.toString(cmd));
         
         ArrayList<String> lines = new ArrayList<String>();
         try {
             Runtime run = Runtime.getRuntime();
             Process shell = run.exec(cmd);
-            shell.waitFor();
             BufferedReader br = new BufferedReader(new InputStreamReader(shell.getInputStream()));
             String line = "";
             while ((line = br.readLine()) != null) {
                 System.out.println("Shell returned: " + line);
                 lines.add(line);
+            }
+            
+            int exitCode = shell.waitFor();
+            if (exitCode != 0) {
+                // get error
+                
+                BufferedReader ebr = new BufferedReader(new InputStreamReader(shell.getErrorStream()));
+                line = "";
+                while ((line = ebr.readLine()) != null) {
+                    System.err.println("Shell error: " + line);
+                }
+                System.out.println("Shell exited early? error? trying again in 5 seconds..");
+                Thread.sleep(5000);
+                for (int i = 0 ; i < 3; i++) {
+                    ArrayList<String> attempt = executeShell(cmd);
+                    if (attempt.size() > 0) {
+                        return attempt;
+                    }
+                    Thread.sleep(250);
+                }
             }
         } catch (Exception ex) { 
             ex.printStackTrace();
@@ -48,7 +68,7 @@ public class ShellHandler {
     
     
     public ArrayList<String> getRemotes() {
-        return executeShell("rclone listremotes");
+        return executeShell(new String[] { rclonePath, "listremotes" });
     }
 
 
@@ -56,10 +76,7 @@ public class ShellHandler {
         if (remote == null || remote.length() == 0 || remote.trim().length() == 0) {
             return new ArrayList<RemoteFile>();
         }
-        if (path.contains(" ")) {
-            path = "\""+path+"\"";
-        }
-        ArrayList<String> output = executeShell("rclone lsf " + remote+""+path);
+        ArrayList<String> output = executeShell(new String[] { rclonePath, "lsf", remote+""+path });
         ArrayList<RemoteFile> files = new ArrayList<RemoteFile>();
         
         for (String s : output) {
@@ -83,7 +100,7 @@ public class ShellHandler {
         if (remote == null || remote.length() == 0 || remote.trim().length() == 0) {
             return new ArrayList<RemoteFile>();
         }
-        ArrayList<String> output = executeShell("rclone lsd " + remote+ ""+path+"");
+        ArrayList<String> output = executeShell(new String[] { rclonePath, "lsd", remote+""+path });
         ArrayList<RemoteFile> files = new ArrayList<RemoteFile>();
         
         int startIndex = 0;
