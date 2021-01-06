@@ -119,6 +119,10 @@ public class UserInterface extends javax.swing.JFrame {
     
     void enableCopyButton() {
         String fromFileName = tblFrom.getValueAt(tblFrom.getSelectedRow(), tblFrom.getSelectedColumn()).toString();
+        String fullFromPath = cboRemoteFrom.getSelectedItem()+""+getPath(fromPath)+""+fromFileName;
+        
+        String fullToPath = cboRemoteTo.getSelectedItem()+""+getPath(toPath);
+        
     }
     
     String getPath(ArrayList<String> path) {
