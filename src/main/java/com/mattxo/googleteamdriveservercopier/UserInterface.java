@@ -108,9 +108,7 @@ public class UserInterface extends javax.swing.JFrame {
                     }
                     
                 } else {
-                    // single click
-                    
-                    
+                    // single click                    
                     enableCopyButton();
                 }
             }
@@ -118,10 +116,30 @@ public class UserInterface extends javax.swing.JFrame {
     }
     
     void enableCopyButton() {
-        String fromFileName = tblFrom.getValueAt(tblFrom.getSelectedRow(), tblFrom.getSelectedColumn()).toString();
-        String fullFromPath = cboRemoteFrom.getSelectedItem()+""+getPath(fromPath)+""+fromFileName;
         
-        String fullToPath = cboRemoteTo.getSelectedItem()+""+getPath(toPath);
+        String remoteFrom = cboRemoteFrom.getSelectedItem().toString();
+        String remoteTo = cboRemoteTo.getSelectedItem().toString();
+        
+        boolean enabled = false;
+        
+        if (tblFrom.getSelectedRow() >= 0) {
+        
+            String fromFileName = tblFrom.getValueAt(tblFrom.getSelectedRow(), tblFrom.getSelectedColumn()).toString();
+            String fullFromPath = cboRemoteFrom.getSelectedItem()+""+getPath(fromPath)+""+fromFileName;
+
+            String fullToPath = cboRemoteTo.getSelectedItem()+""+getPath(toPath);
+
+            System.out.println("fullFromPath=" + fullFromPath+", fullToPath="+fullToPath);
+            
+            if (remoteTo != null && remoteTo.trim().length() > 0) {
+                if (remoteFrom != null && remoteFrom.trim().length() > 0) {
+                    if (fromFileName != null && fromFileName.trim().length() > 0) {
+                        enabled = true;
+                    }
+                }
+            }
+        }
+        btnCopy.setEnabled(enabled);
         
     }
     
@@ -140,6 +158,7 @@ public class UserInterface extends javax.swing.JFrame {
             @Override
             public void itemStateChanged(ItemEvent ie) {
                 if (ie.getStateChange() == ItemEvent.SELECTED) {
+                    fromPath.clear();
                     ArrayList<RemoteFile> files = shell.listFiles(cboRemoteFrom.getSelectedItem().toString() , getPath(fromPath));
                     if (fromPath.size() > 0) { 
                         files.add(0, createBackFile());
@@ -154,6 +173,7 @@ public class UserInterface extends javax.swing.JFrame {
             @Override
             public void itemStateChanged(ItemEvent ie) {
                 if (ie.getStateChange() == ItemEvent.SELECTED) {
+                    toPath.clear();
                     ArrayList<RemoteFile> dirs = shell.listDirectories(cboRemoteTo.getSelectedItem().toString() , getPath(toPath));
                     if (toPath.size() > 0) {
                         dirs.add(0, createBackFile());
@@ -232,15 +252,15 @@ public class UserInterface extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        cboRemoteFrom = new javax.swing.JComboBox<>();
+        cboRemoteFrom = new javax.swing.JComboBox<String>();
         jLabel1 = new javax.swing.JLabel();
-        cboRemoteTo = new javax.swing.JComboBox<>();
+        cboRemoteTo = new javax.swing.JComboBox<String>();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblFrom = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblTo = new javax.swing.JTable();
-        jButton1 = new javax.swing.JButton();
+        btnCopy = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
 
@@ -298,8 +318,13 @@ public class UserInterface extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tblTo);
 
-        jButton1.setText("Copy");
-        jButton1.setEnabled(false);
+        btnCopy.setText("Copy");
+        btnCopy.setEnabled(false);
+        btnCopy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCopyActionPerformed(evt);
+            }
+        });
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -327,7 +352,7 @@ public class UserInterface extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(jScrollPane3)
                                 .addGap(11, 11, 11)
-                                .addComponent(jButton1))
+                                .addComponent(btnCopy))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(cboRemoteFrom, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -353,7 +378,7 @@ public class UserInterface extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton1))
+                        .addComponent(btnCopy))
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -364,6 +389,23 @@ public class UserInterface extends javax.swing.JFrame {
     private void cboRemoteToActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboRemoteToActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cboRemoteToActionPerformed
+
+    private void btnCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyActionPerformed
+        String remoteFrom = cboRemoteFrom.getSelectedItem().toString();
+        String remoteTo = cboRemoteTo.getSelectedItem().toString();
+        
+        String fromFileName = tblFrom.getValueAt(tblFrom.getSelectedRow(), tblFrom.getSelectedColumn()).toString();
+        String fullFromPath = cboRemoteFrom.getSelectedItem()+""+getPath(fromPath)+""+fromFileName;
+        
+        //if folder remove trailing / to copy entire folder
+        if (fromFileName.endsWith("/")) {
+            fullFromPath = fullFromPath.substring(0, fullFromPath.length()-1);
+        }
+        
+        String fullToPath = cboRemoteTo.getSelectedItem()+""+getPath(toPath);
+        
+        shell.fileTransfer(fullFromPath, fullToPath);
+    }//GEN-LAST:event_btnCopyActionPerformed
 
     /**
      * @param args the command line arguments
@@ -401,9 +443,9 @@ public class UserInterface extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCopy;
     private javax.swing.JComboBox<String> cboRemoteFrom;
     private javax.swing.JComboBox<String> cboRemoteTo;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;

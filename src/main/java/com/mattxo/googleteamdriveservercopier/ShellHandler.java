@@ -24,6 +24,7 @@ public class ShellHandler {
         
     }
     
+    
     private ArrayList<String> executeShell(String[] cmd) {
         
         System.out.println("Executing shell command: "+Arrays.toString(cmd));
@@ -48,15 +49,7 @@ public class ShellHandler {
                 while ((line = ebr.readLine()) != null) {
                     System.err.println("Shell error: " + line);
                 }
-                System.out.println("Shell exited early? error? trying again in 5 seconds..");
-                Thread.sleep(5000);
-                for (int i = 0 ; i < 3; i++) {
-                    ArrayList<String> attempt = executeShell(cmd);
-                    if (attempt.size() > 0) {
-                        return attempt;
-                    }
-                    Thread.sleep(250);
-                }
+                
             }
         } catch (Exception ex) { 
             ex.printStackTrace();
@@ -96,6 +89,10 @@ public class ShellHandler {
         return files;
     }
     
+    public void fileTransfer(String pathFrom, String pathTo) {
+        executeShell(new String[] {rclonePath, "-vv", "copy", "--drive-server-side-across-configs", pathFrom, pathTo });
+    }
+    
     public ArrayList<RemoteFile> listDirectories(String remote, String path) {
         if (remote == null || remote.length() == 0 || remote.trim().length() == 0) {
             return new ArrayList<RemoteFile>();
@@ -110,10 +107,10 @@ public class ShellHandler {
             if (startIndex == 0) {
                 int occurances = 0;
                 for (int i = 0 ; i < s.length(); i++) {
-                    if (s.charAt(i) == '-' && s.charAt(i+1) == '1') {
+                    if (s.charAt(i) == ' ' && s.charAt(i+1) == '-' && s.charAt(i+2) == '1') {
                         occurances ++;
                         if (occurances == 2) {
-                            startIndex = i+3;
+                            startIndex = i+4;
                             break;
                         }
                     }
