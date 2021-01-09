@@ -295,6 +295,7 @@ public class UserInterface extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblFrom.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(tblFrom);
 
         tblTo.setModel(new javax.swing.table.DefaultTableModel(
@@ -316,6 +317,7 @@ public class UserInterface extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tblTo.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane2.setViewportView(tblTo);
 
         btnCopy.setText("Copy");

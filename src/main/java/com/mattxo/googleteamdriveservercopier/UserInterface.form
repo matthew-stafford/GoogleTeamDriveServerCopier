@@ -133,6 +133,7 @@
                 <Column editable="false" title="Size" type="java.lang.Object"/>
               </Table>
             </Property>
+            <Property name="selectionMode" type="int" value="0"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -148,6 +149,7 @@
                 <Column editable="false" title="Folder" type="java.lang.Object"/>
               </Table>
             </Property>
+            <Property name="selectionMode" type="int" value="0"/>
           </Properties>
         </Component>
       </SubComponents>
